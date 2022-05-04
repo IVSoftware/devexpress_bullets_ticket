@@ -63,15 +63,54 @@ namespace devexpress_bullets_ticket
                     var level =  list.Levels[i];
                     level.ParagraphProperties.LeftIndent = 100 * (i + 1);
 
-                    // Specify the character to use for the bullet.
-                    // Without this step, the list is considered as numbered
-                    level.DisplayFormatString = $"{c}";
+
+#if !SPACING_IN_FORMAT_STRING
+                    // - String specifies the character to use for the bullet.
+                    // - It 'can' include spacing after but the list will be
+                    //   considered numbered in that case.
+                    // - That is, the readonly 'level.BulletList' property
+                    //   apparently is looking for a single character.
+                    level.DisplayFormatString = $"{c} ";
                     level.CharacterProperties.FontName = "Wingdings 2";
+
+                    bool expectBulletLevel = 
+                        (!string.IsNullOrEmpty(level.DisplayFormatString)) && 
+                        level.DisplayFormatString.Length == 1;
+
+                    Debug.Assert(
+                        level.BulletLevel == expectBulletLevel, 
+                        "Expecting 'true' if DisplayFormatString consists of a single character"
+                    );
+
+                    // Put a space after the bullet character.
+                    level.Separator = '\0';
                     i++; c++;
+#else
+                    // - String specifies the character to use for the bullet.
+                    // - It 'can' include spacing after but the list will be
+                    //   considered numbered in that case.
+                    // - That is, the readonly 'level.BulletList' property
+                    //   apparently is looking for a single character.
+                    level.DisplayFormatString = $"\u00B7";
+                    level.CharacterProperties.FontName = "Symbol";
+
+                    bool expectBulletLevel = 
+                        (!string.IsNullOrEmpty(level.DisplayFormatString)) && 
+                        level.DisplayFormatString.Length == 1;
+
+                    Debug.Assert(
+                        level.BulletLevel == expectBulletLevel,
+                        "Expecting 'true' if DisplayFormatString consists of a single character"
+                    );
+
+                    // Put a space after the bullet character. However, this seems insufficient.
+                    level.Separator = ' ';
+                    i++; c++;
+#endif
                 }
 
                 //Create a new list based on the specific pattern 
-                NumberingList bulletedList = document.NumberingLists.Add(0);
+                NumberingList bulletedList = document.NumberingLists.Add(list.Index);
 
                 // Add paragraphs to the list 
                 document.Paragraphs.AddParagraphsToList(document.Selection, bulletedList, 0);
