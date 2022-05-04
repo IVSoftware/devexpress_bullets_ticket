@@ -21,16 +21,17 @@ namespace devexpress_bullets_ticket
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
+            Size = new Size(Size.Width, 500);
             richEditControl.Document.AppendText(
                 string.Join(
                     Environment.NewLine,
                     new string[]
                 {
-                    "Item 1",
-                    "Item 2",
-                    "Item 3",
-                    "Item 4",
-                    "Item 5",
+                    "Level 0",
+                    "Level 1 (Press Tab Once)",
+                    "Level 2 (Press Tab Twice)",
+                    "Level 3 (Press Tab x 3)",
+                    "Level 4 (Press Tab x 4)",
                 }
             ));
             btnBullets.Click += (sender, e) =>
@@ -52,13 +53,22 @@ namespace devexpress_bullets_ticket
 
                 //Specify the list's type 
                 list.NumberingType = NumberingType.Bullet;
-                ListLevel level = list.Levels[0];
-                level.ParagraphProperties.LeftIndent = 100;
 
-                //Specify the bullets' format 
-                //Without this step, the list is considered as numbered 
-                level.DisplayFormatString = "\u00B7";
-                level.CharacterProperties.FontName = "Symbol";
+                // Traverse the AbstractNumberingList.Levels collection
+                // and customize the required levels of the list
+                int i = 0;
+                char c = 'i';
+                while( i < list.Levels.Count)
+                {
+                    var level =  list.Levels[i];
+                    level.ParagraphProperties.LeftIndent = 100 * (i + 1);
+
+                    // Specify the character to use for the bullet.
+                    // Without this step, the list is considered as numbered
+                    level.DisplayFormatString = $"{c}";
+                    level.CharacterProperties.FontName = "Wingdings 2";
+                    i++; c++;
+                }
 
                 //Create a new list based on the specific pattern 
                 NumberingList bulletedList = document.NumberingLists.Add(0);

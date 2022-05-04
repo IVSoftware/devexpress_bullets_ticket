@@ -62,7 +62,7 @@ namespace devexpress_bullets_ticket
             this.Controls.Add(this.richEditControl);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "DevExpress RichTextEdit";
+            this.Text = "DevExpress RichEditControl";
             this.ResumeLayout(false);
 
         }
