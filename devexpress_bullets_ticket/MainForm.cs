@@ -23,17 +23,12 @@ namespace devexpress_bullets_ticket
             base.OnHandleCreated(e);
             Size = new Size(Size.Width, 500);
             richEditControl.Document.AppendText(
-                string.Join(
-                    Environment.NewLine,
-                    new string[]
-                {
-                    "Level 0",
-                    "Level 1 (Press Tab Once)",
-                    "Level 2 (Press Tab Twice)",
-                    "Level 3 (Press Tab x 3)",
-                    "Level 4 (Press Tab x 4)",
-                }
-            ));
+@"Level 0
+Level 1 (Press Tab Once)
+Level 2 (Press Tab Twice)
+Level 3 (Press Tab x 3)
+Level 4 (Press Tab x 4)"
+            );
             btnBullets.Click += (sender, e) =>
             {
                 execSampleCode();
@@ -80,7 +75,6 @@ namespace devexpress_bullets_ticket
 
                 // Add paragraphs to the list 
                 document.Paragraphs.AddParagraphsToList(document.Selection, bulletedList, 0);
-
             }
             catch (Exception ex)
             {
