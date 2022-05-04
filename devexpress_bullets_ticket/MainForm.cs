@@ -12,9 +12,9 @@ using System.Windows.Forms;
 
 namespace devexpress_bullets_ticket
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -36,13 +36,13 @@ namespace devexpress_bullets_ticket
             ));
             btnBullets.Click += (sender, e) =>
             {
-                richEditControl.SelectAll();
                 execSampleCode();
             };
         }
 
         private void execSampleCode()
         {
+            richEditControl.SelectAll();
             var document = richEditControl.Document;
             try
             {
@@ -61,52 +61,18 @@ namespace devexpress_bullets_ticket
                 while( i < list.Levels.Count)
                 {
                     var level =  list.Levels[i];
-                    level.ParagraphProperties.LeftIndent = 100 * (i + 1);
 
-
-#if !SPACING_IN_FORMAT_STRING
-                    // - String specifies the character to use for the bullet.
-                    // - It 'can' include spacing after but the list will be
-                    //   considered numbered in that case.
-                    // - That is, the readonly 'level.BulletList' property
-                    //   apparently is looking for a single character.
-                    level.DisplayFormatString = $"{c} ";
+                    level.DisplayFormatString = $"{c}";
                     level.CharacterProperties.FontName = "Wingdings 2";
 
-                    bool expectBulletLevel = 
-                        (!string.IsNullOrEmpty(level.DisplayFormatString)) && 
-                        level.DisplayFormatString.Length == 1;
+                    Debug.Assert(level.BulletLevel,  "Expecting 'true' if DisplayFormatString consists of a single character" );
 
-                    Debug.Assert(
-                        level.BulletLevel == expectBulletLevel, 
-                        "Expecting 'true' if DisplayFormatString consists of a single character"
-                    );
+                    // Spacing between bullet and text.
+                    var bulletAlignValue =  100 * (i + 1);
+                    var textIndentValue = bulletAlignValue + 75;
+                    setBulletListIndents(bulletAlignValue, textIndentValue, level.ParagraphProperties);
 
-                    // Put a space after the bullet character.
-                    level.Separator = '\0';
                     i++; c++;
-#else
-                    // - String specifies the character to use for the bullet.
-                    // - It 'can' include spacing after but the list will be
-                    //   considered numbered in that case.
-                    // - That is, the readonly 'level.BulletList' property
-                    //   apparently is looking for a single character.
-                    level.DisplayFormatString = $"\u00B7";
-                    level.CharacterProperties.FontName = "Symbol";
-
-                    bool expectBulletLevel = 
-                        (!string.IsNullOrEmpty(level.DisplayFormatString)) && 
-                        level.DisplayFormatString.Length == 1;
-
-                    Debug.Assert(
-                        level.BulletLevel == expectBulletLevel,
-                        "Expecting 'true' if DisplayFormatString consists of a single character"
-                    );
-
-                    // Put a space after the bullet character. However, this seems insufficient.
-                    level.Separator = ' ';
-                    i++; c++;
-#endif
                 }
 
                 //Create a new list based on the specific pattern 
@@ -124,6 +90,30 @@ namespace devexpress_bullets_ticket
             {
                 document.EndUpdate();
             }
-        }
+
+            #region L o c a l M e t h o d 
+            static void setBulletListIndents(float bulletAlignValue, float textIndentValue, ParagraphPropertiesBase pp)
+            {
+                // https://supportcenter.devexpress.com/ticket/details/t810949/richeditcontrol-setup-indent-between-bullet-and-items-in-list
+                pp.LeftIndent = textIndentValue;
+                float probableFirstLineIndent = textIndentValue - bulletAlignValue;
+                if (probableFirstLineIndent > 0)
+                {
+                    pp.FirstLineIndentType = ParagraphFirstLineIndent.Hanging;
+                    pp.FirstLineIndent = probableFirstLineIndent;
+                }
+                else if (probableFirstLineIndent < 0)
+                {
+                    pp.FirstLineIndentType = ParagraphFirstLineIndent.Indented;
+                    pp.FirstLineIndent = -probableFirstLineIndent;
+                }
+                else
+                {
+                    pp.FirstLineIndentType = ParagraphFirstLineIndent.None;
+                    pp.FirstLineIndent = 0;
+                }
+            }
+            #endregion L o c a l M e t h o d 
+        }        
     }
 }
